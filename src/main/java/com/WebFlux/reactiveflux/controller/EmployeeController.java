@@ -1,5 +1,6 @@
 package com.WebFlux.reactiveflux.controller;
 
+import com.WebFlux.reactiveflux.config.Producer;
 import com.WebFlux.reactiveflux.model.Employee;
 import com.WebFlux.reactiveflux.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,17 +15,25 @@ import reactor.core.publisher.Mono;
 @RestController
 public class EmployeeController {
 
+    private static final String TOPIC = "test_topic";
+
     @Autowired
     private EmployeeService employeeService;
 
-    @RequestMapping(value = {"/addEmployee"}, method = RequestMethod.POST)
+    private final Producer producer;
+
+    public EmployeeController(Producer producer) {
+        this.producer = producer;
+    }
+
+    @RequestMapping(value = {"/addEmployee", "/"}, method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public void create(@RequestBody Employee employee) {
         employeeService.create(employee);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Mono<Employee>> findById(@PathVariable("id") Integer id) {
+    public ResponseEntity<Mono<Employee>> findById(@PathVariable("id") String id) {
         Mono<Employee> employee = employeeService.findById(id);
         HttpStatus status = employee != null ? HttpStatus.OK : HttpStatus.NOT_FOUND;
         return new ResponseEntity<Mono<Employee>>(employee, status);
@@ -35,7 +44,8 @@ public class EmployeeController {
         return employeeService.findByLocation(location);
     }
 
-    @RequestMapping(value="/employeeDetails" ,method = RequestMethod.GET, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @RequestMapping(value = "/employeeDetails", method = RequestMethod.GET,
+            produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Employee> findAllEmployees() {
         Flux<Employee> employees = employeeService.findAll();
         return employees;
@@ -43,13 +53,19 @@ public class EmployeeController {
 
     @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public Mono<Employee> update(@PathVariable int id, @RequestBody final Employee employeeDetails) {
+    public Mono<Employee> update(@PathVariable String id, @RequestBody final Employee employeeDetails) {
         return employeeService.update(employeeDetails);
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@PathVariable("id") Integer id) {
+    public void delete(@PathVariable("id") String id) {
         employeeService.delete(id).subscribe();
+    }
+
+    @PostMapping("/publish")
+    public ResponseEntity<String> messageToTopic(@RequestParam("message") String message) {
+        this.producer.sendMessage(message);
+        return ResponseEntity.ok("Message Received " + message);
     }
 }

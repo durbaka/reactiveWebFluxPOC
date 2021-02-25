@@ -1,14 +1,15 @@
 package com.WebFlux.reactiveflux.model;
 
-import lombok.Data;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data
+@Scope(scopeName = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Document
 public class Employee {
     @Id
-    private int id;
+    private String id;
 
     private String name;
     private String doj;
@@ -25,11 +26,11 @@ public class Employee {
         this.managerName = managerName;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
 
-public interface EmployeeRepository extends ReactiveMongoRepository<Employee, Integer> {
+public interface EmployeeRepository extends ReactiveMongoRepository<Employee, String> {
 
     @Query("{ 'baseLocation': ?0 }")
     Flux<Employee> findByLocation(String location);

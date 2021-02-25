@@ -17,7 +17,7 @@ public class EmployeeService implements IEmployeeService {
         employeeRepo.save(employee).subscribe();
     }
 
-    public Mono<Employee> findById(Integer id) {
+    public Mono<Employee> findById(String id) {
         return employeeRepo.findById(id);
     }
 
@@ -34,12 +34,12 @@ public class EmployeeService implements IEmployeeService {
         return employeeRepo.save(emp);
     }
 
-    public Mono<Employee> update(int id,Employee employeeDetails) {
+    public Mono<Employee> update(String id,Employee employeeDetails) {
         Mono<Employee> employee = employeeRepo.findById(id);
         return employeeRepo.save(employeeDetails);
     }
 
-    public Mono<Void> delete(Integer id) {
+    public Mono<Void> delete(String id) {
         return employeeRepo.deleteById(id);
     }
 }
